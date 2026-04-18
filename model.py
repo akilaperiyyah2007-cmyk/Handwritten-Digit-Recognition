@@ -3,8 +3,8 @@ from tensorflow import keras
 
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
-x_train = x_train / 255.0
-x_test = x_test / 255.0
+x_train = x_train/255.0
+x_test = x_test/255.0
 
 model = keras.Sequential([
     keras.layers.Flatten(input_shape=(28,28)),
@@ -18,5 +18,4 @@ model.compile(optimizer='adam',
 
 model.fit(x_train, y_train, epochs=5)
 
-loss, acc = model.evaluate(x_test, y_test)
-print("Accuracy:", acc)
+model.save("model.h5")
