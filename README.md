@@ -1,16 +1,41 @@
-# G2 - Handwritten Digit Recognition
+# 🧠 G2 - Handwritten Digit Recognition
 
-## Description
-This project recognizes handwritten digits using machine learning.
+## 📌 Description
+This project is a web-based application that recognizes handwritten digits using a deep learning model.
 
-## Features
-- Login Page
-- Welcome Screen
-- Digit Prediction
+## 🚀 Features
+- User-friendly interface
+- Draw digits using canvas
+- Real-time digit prediction
+- Confidence score display
+- AI model using TensorFlow
 
-## Technologies
+## 🛠️ Technologies Used
 - HTML, CSS, JavaScript
-- Python (TensorFlow)
+- Python (Flask)
+- TensorFlow
+- OpenCV
 
-## Result
-Successfully predicts digits from 0 to 9.
+## ▶️ How to Run
+
+1. Install dependencies:
+   pip install -r requirements.txt
+
+2. Train the model:
+   python train_model.py
+
+3. Start backend server:
+   python app.py
+
+4. Open index.html in browser
+
+## 📊 Result
+The system successfully predicts handwritten digits (0–9) with good accuracy.
+
+## 🔮 Future Enhancements
+- Real-time camera input
+- Mobile app version
+- Improved CNN model accuracy
+
+## 👩‍💻 Developed By
+G2 Mini Project
