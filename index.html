@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Digit Recognition</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="box" id="loginPage">
+  <h1>🔐 Login</h1>
+  <input type="text" id="username" placeholder="Enter your name">
+  <br>
+  <button onclick="login()">Enter</button>
+</div>
+
+<!-- WELCOME -->
+<div class="box hidden" id="welcomePage">
+  <h1 id="welcomeText"></h1>
+  <button onclick="startApp()">Start Project</button>
+</div>
+
+<!-- APP -->
+<div class="box hidden" id="appPage">
+  <h1>🧠 Digit Recognition</h1>
+  <button onclick="predict()">Predict Digit</button>
+
+  <div class="card hidden" id="resultBox">
+    <h2>Prediction: <span id="result">?</span></h2>
+  </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
