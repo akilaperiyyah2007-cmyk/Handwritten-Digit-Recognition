@@ -1,126 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
 <title>AI Digit Recognition</title>
-
 <style>
 body {
-  margin: 0;
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #0f2027, #2c5364);
-  color: white;
-  text-align: center;
+  background: linear-gradient(135deg,#0f2027,#2c5364);
+  color:white;
+  text-align:center;
 }
 
-/* Glass effect */
 .container {
-  margin: 80px auto;
-  width: 350px;
-  padding: 30px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+  margin:50px auto;
+  width:350px;
+  padding:25px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.1);
 }
 
-/* Input */
-input {
-  width: 80%;
-  padding: 12px;
-  border-radius: 25px;
-  border: none;
-  margin-top: 10px;
-  text-align: center;
+canvas {
+  background:white;
+  border-radius:10px;
 }
 
-/* Button */
 button {
-  margin-top: 15px;
-  padding: 12px 25px;
-  border-radius: 25px;
-  border: none;
-  background: linear-gradient(45deg, #ff416c, #ff4b2b);
-  color: white;
-  cursor: pointer;
-  transition: 0.3s;
+  margin:10px;
+  padding:10px 20px;
+  border:none;
+  border-radius:20px;
+  background:#ff416c;
+  color:white;
 }
 
-button:hover {
-  transform: scale(1.1);
-}
-
-/* Hidden */
-.hidden {
-  display: none;
-}
-
-/* Result card */
 .card {
-  margin-top: 20px;
-  padding: 20px;
-  border-radius: 15px;
-  background: white;
-  color: black;
+  background:white;
+  color:black;
+  margin-top:15px;
+  padding:10px;
+  border-radius:10px;
 }
 </style>
-
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div class="container" id="loginPage">
-  <h1>🔐 AI Login</h1>
-  <input type="text" id="username" placeholder="Enter your name">
-  <br>
-  <button onclick="login()">Enter</button>
+<div class="container">
+<h2>🧠 AI Digit Recognition</h2>
+
+<canvas id="canvas" width="280" height="280"></canvas>
+
+<br>
+<button onclick="predict()">Predict</button>
+<button onclick="clearCanvas()">Clear</button>
+
+<div class="card" id="resultBox" style="display:none;">
+  <h3>Prediction: <span id="result"></span></h3>
+  <p>Confidence: <span id="confidence"></span>%</p>
 </div>
-
-<!-- WELCOME -->
-<div class="container hidden" id="welcomePage">
-  <h1 id="welcomeText"></h1>
-  <p>Ready to explore AI Digit Recognition?</p>
-  <button onclick="startApp()">Launch</button>
-</div>
-
-<!-- MAIN APP -->
-<div class="container hidden" id="appPage">
-  <h1>🧠 AI Digit Recognition</h1>
-  <p>Click to simulate prediction</p>
-
-  <button onclick="predict()">Predict Digit</button>
-
-  <div class="card hidden" id="resultBox">
-    <h2>Prediction: <span id="result">?</span></h2>
-  </div>
 </div>
 
 <script>
-function login() {
-  let name = document.getElementById("username").value;
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
+let drawing=false;
 
-  if(name === "") {
-    alert("Enter your name!");
-    return;
-  }
-
-  document.getElementById("loginPage").classList.add("hidden");
-  document.getElementById("welcomePage").classList.remove("hidden");
-
-  document.getElementById("welcomeText").innerText =
-    "Welcome " + name + " 🚀";
+canvas.onmousedown=()=>drawing=true;
+canvas.onmouseup=()=>drawing=false;
+canvas.onmousemove=e=>{
+  if(!drawing)return;
+  ctx.fillStyle="black";
+  ctx.beginPath();
+  ctx.arc(e.offsetX,e.offsetY,8,0,Math.PI*2);
+  ctx.fill();
 }
 
-function startApp() {
-  document.getElementById("welcomePage").classList.add("hidden");
-  document.getElementById("appPage").classList.remove("hidden");
+function clearCanvas(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
-function predict() {
-  let digit = Math.floor(Math.random() * 10);
-  document.getElementById("result").innerText = digit;
-  document.getElementById("resultBox").classList.remove("hidden");
+function predict(){
+  let data = canvas.toDataURL();
+
+  fetch("http://127.0.0.1:5000/predict",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({image:data})
+  })
+  .then(res=>res.json())
+  .then(data=>{
+    document.getElementById("result").innerText=data.digit;
+    document.getElementById("confidence").innerText=data.confidence.toFixed(2);
+    document.getElementById("resultBox").style.display="block";
+  });
 }
 </script>
 
