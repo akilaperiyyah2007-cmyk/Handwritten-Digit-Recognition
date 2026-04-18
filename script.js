@@ -1,24 +1,42 @@
-function login() {
-  let name = document.getElementById("username").value;
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
 
-  if (name === "") {
-    alert("Enter your name!");
-    return;
-  }
+let drawing = false;
 
-  document.getElementById("loginPage").classList.add("hidden");
-  document.getElementById("welcomePage").classList.remove("hidden");
+canvas.addEventListener("mousedown", () => drawing = true);
+canvas.addEventListener("mouseup", () => drawing = false);
+canvas.addEventListener("mousemove", draw);
 
-  document.getElementById("welcomeText").innerText = "Welcome " + name + " 🎉";
+function draw(e) {
+  if (!drawing) return;
+  ctx.fillStyle = "black";
+  ctx.beginPath();
+  ctx.arc(e.offsetX, e.offsetY, 8, 0, Math.PI * 2);
+  ctx.fill();
 }
 
-function startApp() {
-  document.getElementById("welcomePage").classList.add("hidden");
-  document.getElementById("appPage").classList.remove("hidden");
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  document.getElementById("resultBox").style.display = "none";
 }
 
 function predict() {
-  let digit = Math.floor(Math.random() * 10);
-  document.getElementById("result").innerText = digit;
-  document.getElementById("resultBox").classList.remove("hidden");
+  let data = canvas.toDataURL();
+
+  fetch("http://127.0.0.1:5000/predict", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ image: data })
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById("result").innerText = data.digit;
+    document.getElementById("confidence").innerText = data.confidence.toFixed(2);
+    document.getElementById("resultBox").style.display = "block";
+  })
+  .catch(() => {
+    alert("Backend not running! Start app.py first.");
+  });
 }
