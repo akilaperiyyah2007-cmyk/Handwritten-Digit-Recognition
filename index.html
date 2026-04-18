@@ -2,8 +2,10 @@
 <html>
 <head>
 <title>AI Digit Recognition</title>
+
 <style>
 body {
+  margin:0;
   font-family: 'Poppins', sans-serif;
   background: linear-gradient(135deg,#0f2027,#2c5364);
   color:white;
@@ -11,16 +13,21 @@ body {
 }
 
 .container {
-  margin:50px auto;
-  width:350px;
-  padding:25px;
+  margin:60px auto;
+  width:90%;
+  max-width:350px;
+  padding:20px;
   border-radius:20px;
   background:rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
 }
 
-canvas {
-  background:white;
-  border-radius:10px;
+input {
+  padding:10px;
+  border-radius:20px;
+  border:none;
+  width:80%;
+  text-align:center;
 }
 
 button {
@@ -30,6 +37,12 @@ button {
   border-radius:20px;
   background:#ff416c;
   color:white;
+}
+
+canvas {
+  background:white;
+  border-radius:10px;
+  touch-action: none;
 }
 
 .card {
@@ -44,54 +57,93 @@ button {
 
 <body>
 
-<div class="container">
-<h2>🧠 AI Digit Recognition</h2>
-
-<canvas id="canvas" width="280" height="280"></canvas>
-
-<br>
-<button onclick="predict()">Predict</button>
-<button onclick="clearCanvas()">Clear</button>
-
-<div class="card" id="resultBox" style="display:none;">
-  <h3>Prediction: <span id="result"></span></h3>
-  <p>Confidence: <span id="confidence"></span>%</p>
+<!-- LOGIN -->
+<div class="container" id="loginPage">
+  <h2>🔐 Login</h2>
+  <input type="text" id="username" placeholder="Enter your name">
+  <br>
+  <button onclick="login()">Enter</button>
 </div>
+
+<!-- APP -->
+<div class="container" id="appPage" style="display:none;">
+  <h2 id="welcomeText"></h2>
+
+  <p>Draw a digit (0–9)</p>
+  <canvas id="canvas" width="280" height="280"></canvas>
+
+  <br>
+  <button onclick="predict()">Predict</button>
+  <button onclick="clearCanvas()">Clear</button>
+
+  <div class="card" id="resultBox" style="display:none;">
+    <h3>Prediction: <span id="result"></span></h3>
+    <p>Confidence: <span id="confidence"></span>%</p>
+  </div>
 </div>
 
 <script>
-let canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
+// LOGIN
+function login(){
+  let name = document.getElementById("username").value;
+  if(name===""){ alert("Enter name"); return; }
+
+  document.getElementById("loginPage").style.display="none";
+  document.getElementById("appPage").style.display="block";
+  document.getElementById("welcomeText").innerText="Welcome "+name+" 🚀";
+}
+
+// CANVAS DRAW (mobile + mouse)
+let canvas=document.getElementById("canvas");
+let ctx=canvas.getContext("2d");
 let drawing=false;
 
-canvas.onmousedown=()=>drawing=true;
-canvas.onmouseup=()=>drawing=false;
-canvas.onmousemove=e=>{
-  if(!drawing)return;
+function getPos(e){
+  let rect=canvas.getBoundingClientRect();
+  if(e.touches){
+    return {
+      x:e.touches[0].clientX-rect.left,
+      y:e.touches[0].clientY-rect.top
+    };
+  } else {
+    return {
+      x:e.offsetX,
+      y:e.offsetY
+    };
+  }
+}
+
+canvas.addEventListener("mousedown",()=>drawing=true);
+canvas.addEventListener("mouseup",()=>drawing=false);
+canvas.addEventListener("mousemove",draw);
+
+canvas.addEventListener("touchstart",()=>drawing=true);
+canvas.addEventListener("touchend",()=>drawing=false);
+canvas.addEventListener("touchmove",draw);
+
+function draw(e){
+  if(!drawing) return;
+  let pos=getPos(e);
   ctx.fillStyle="black";
   ctx.beginPath();
-  ctx.arc(e.offsetX,e.offsetY,8,0,Math.PI*2);
+  ctx.arc(pos.x,pos.y,8,0,Math.PI*2);
   ctx.fill();
 }
 
+// CLEAR
 function clearCanvas(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
+  document.getElementById("resultBox").style.display="none";
 }
 
+// DEMO PREDICT
 function predict(){
-  let data = canvas.toDataURL();
+  let digit=Math.floor(Math.random()*10);
+  let conf=(80+Math.random()*20).toFixed(2);
 
-  fetch("http://127.0.0.1:5000/predict",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({image:data})
-  })
-  .then(res=>res.json())
-  .then(data=>{
-    document.getElementById("result").innerText=data.digit;
-    document.getElementById("confidence").innerText=data.confidence.toFixed(2);
-    document.getElementById("resultBox").style.display="block";
-  });
+  document.getElementById("result").innerText=digit;
+  document.getElementById("confidence").innerText=conf;
+  document.getElementById("resultBox").style.display="block";
 }
 </script>
 
